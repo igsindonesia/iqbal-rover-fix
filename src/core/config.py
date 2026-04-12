@@ -12,12 +12,13 @@ load_dotenv(env_file)
 class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
+    DB_HOST: str
     DB_PORT: str
     DB_NAME: str
     SECRET_KEY_JWT: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-    CORS_FE_DEV: str
+    CORS_FE_ORIGINS: str
 
     MODEL_PATH: str
     LABEL_PATH: str
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
     # ADMIN CONFIG
     SUPERADMIN_EMAIL: str
     SUPERADMIN_USERNAME: str
-    SUPERADMIN_PASSWORD: str 
+    SUPERADMIN_PASSWORD: str
 
     # EMAIL CONFIG
     MAIL_USERNAME: str
