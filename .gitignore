@@ -62,8 +62,9 @@ coverage.xml
 
 # Environment variables
 .env
+.env.dev
 .env.local
-.env.*
+
 
 # VSCode & JetBrains IDE
 .vscode/
