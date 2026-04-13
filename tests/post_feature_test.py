@@ -3,7 +3,7 @@ import os
 import uuid
 import pytest
 from src.users.models import User
-from src.main import app
+from main import app
 from src.core.auth import get_current_user
 from tests.utils import * 
 

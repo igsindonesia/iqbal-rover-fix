@@ -6,29 +6,28 @@ Repository ini berisi implementasi sistem **backend** untuk proyek `Rover`, yang
 
 backend ini dibangun menggunakan **FastAPI** dan berperan sebagai pusat pengolaaan:
 
-- Autentikasi dan manajemen pengguna  
-- Penyimpanan dan pengambilan data hasil deteksi  
-- Integrasi dengan model YOLOv11  
+- Autentikasi dan manajemen pengguna
+- Penyimpanan dan pengambilan data hasil deteksi
+- Integrasi dengan model YOLOv11
 - API komunikasi antara sistem deteksi dan aplikasi mobile
 
 ---
 
-
 ## ⚙️ Tech Stack
 
-- **Framework**: FastAPI  
-- **Database**: PostgreSQL / SQLite (opsional untuk development)  
-- **ORM**: SQLAlchemy  
-- **Schema Validation**: Pydantic  
-- **Authentication**: JWT (JSON Web Token)  
-- **Environment Management**: Python venv  
-- **Server**: Uvicorn 
-
+- **Framework**: FastAPI
+- **Database**: PostgreSQL / SQLite (opsional untuk development)
+- **ORM**: SQLAlchemy
+- **Schema Validation**: Pydantic
+- **Authentication**: JWT (JSON Web Token)
+- **Environment Management**: Python venv
+- **Server**: Uvicorn
 
 ## Project Structure
+
 ```bash
+├── main.py # Entry point aplikasi FastAPI
 ├── src/
-│ ├── main.py # Entry point aplikasi FastAPI
 │ ├── users/ # Routing dan endpoint
 │ ├── post/ # Model SQLAlchemy
 │ ├── result/ # Pydantic schema
@@ -40,7 +39,6 @@ backend ini dibangun menggunakan **FastAPI** dan berperan sebagai pusat pengolaa
 └── .env # digunakan untuk enviorment production
 └── README.md
 ```
-
 
 ---
 
@@ -70,12 +68,15 @@ backend ini dibangun menggunakan **FastAPI** dan berperan sebagai pusat pengolaa
     ```
 
 ## Run Server
+
 Menjalankan server pengembangan:
+
 ```bash
-uvicorn src.main:app --reload
+uvicorn main:app --reload
 ```
 
 lalu server akan berjalan di
+
 ```bash
 http://127.0.0.1:8000
 ```
