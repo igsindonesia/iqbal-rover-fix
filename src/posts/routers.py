@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from datetime import datetime, timezone
 from starlette.requests import Request
-from typing import List
+from typing import List, Optional, Tuple
 
 import uuid
 import shutil
@@ -23,13 +23,26 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 
-CLASS_NAMES = _read_yaml_file(str(settings.LABEL_PATH))
-
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
-detector = Yolov11Detector(
-    model_path=settings.MODEL_PATH, label_yaml=settings.LABEL_PATH
-)
+detector: Optional[Yolov11Detector] = None
+class_names: Optional[List[str]] = None
+
+
+def _get_detector() -> Tuple[Yolov11Detector, List[str]]:
+    global detector, class_names
+    if detector is None or class_names is None:
+        try:
+            class_names = _read_yaml_file(str(settings.LABEL_PATH))
+            detector = Yolov11Detector(
+                model_path=settings.MODEL_PATH, label_yaml=settings.LABEL_PATH
+            )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Detector initialization failed: {exc}",
+            )
+    return detector, class_names
 
 
 # --- UPLOAD & PREDICT (TIDAK SIMPAN KE DB) ---
@@ -51,9 +64,16 @@ async def upload_and_predict(
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    detector_instance, loaded_class_names = _get_detector()
+
     # Deteksi
     img = cv2.imread(str(file_path))
-    boxes, scores, class_ids = detector.detect(img)
+    if img is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unable to read uploaded image",
+        )
+    boxes, scores, class_ids = detector_instance.detect(img)
 
     # Format hasil
     if not boxes:
@@ -64,7 +84,9 @@ async def upload_and_predict(
         predict_bbox = {}
         for box, score, cls_id in zip(boxes, scores, class_ids):
             cls_name = (
-                CLASS_NAMES[cls_id] if cls_id < len(CLASS_NAMES) else f"class_{cls_id}"
+                loaded_class_names[cls_id]
+                if cls_id < len(loaded_class_names)
+                else f"class_{cls_id}"
             )
             predict_summary[cls_name] = predict_summary.get(cls_name, 0) + 1
             predict_confidence.setdefault(cls_name, []).append(round(float(score), 4))
