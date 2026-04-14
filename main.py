@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,11 +14,7 @@ from src.admin.routers import router as admin_router
 from src.admin.models import Admin
 
 
-# initial app
-app = FastAPI(title="Rover Backend Developer", version="0.0.1")
-
 # Seed Superadmin on startup
-@app.on_event("startup")
 async def seed_superadmin():
     max_retries = 5
     for attempt in range(1, max_retries + 1):
@@ -49,6 +46,16 @@ async def seed_superadmin():
                 print("[startup] skipping superadmin seed for this boot")
         finally:
             db.close()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await seed_superadmin()
+    yield
+
+
+# initial app
+app = FastAPI(title="Rover Backend Developer", version="0.0.1", lifespan=lifespan)
 
 
 # CORS Middleware
